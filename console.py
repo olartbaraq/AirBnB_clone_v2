@@ -10,7 +10,8 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-
+import shlex
+import re # Both fullmatch() and match() functions return a Match object if they find a match.
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -113,18 +114,42 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+    def do_create(self, arg):
+        """ Allow for object creation with given arguments"""
+        args = shlex.split(arg)
+        # This will split the command line arguments to
+        # List when it sees a space character.
+        if len(args) == 0:
+            print("** classname is missing**")
+            return False
+        if args[0] not in classes:
+            print("** class doesn't exist**")
+            return False
+        kwargs = {}
+        for arg in args[1:]:
+            match = re.fullmatch('?P<key>[a-zA-Z_]\w*)=(?:'
+                                 '((?P<int>\d+)|'
+                                 '(?P<float>\d*\.\d*)|'
+                                 '(?P<string>.*))',
+                                 arg)
+            match = match.groupdict()
+            if match['string']:
+                kwargs[match['key']] = match['string'].replacse('_',' ')
+            elif match['float']:
+                if match['float'] == '_':
+                    continue
+                kwargs[match['key']] = float(match['float'])
+            else:
+                kwargs[match['key']] = int(match['int'])
+        instance = classes[args[0]](**kwargs)
+        try:
+            instance.save()
+        except Exception as e:
+            print("** could not save[{}] object **".format(args[0]))
+            print(e)
+            return False
+        else:
+            print(instance,id)
 
     def help_create(self):
         """ Help information for the create method """
