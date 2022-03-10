@@ -37,7 +37,7 @@ class FileStorage:
         if obj:
             for keys, values in (FileStorage.__objects).items():
                 if obj.id == values.id:
-                    (FileStorage.__objects).pop(key)
+                    (FileStorage.__objects).pop(keys)
                     return
 
     def reload(self):
