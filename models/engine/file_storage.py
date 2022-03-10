@@ -36,7 +36,7 @@ class FileStorage:
         """to delete obj from __objects if it’s inside"""
         if obj:
             del self.__objects[obj.__class__.__name__ + '.' + obj.id]
-            self,save()
+            self.save()
             
     def reload(self):
         """Loads storage dictionary from file"""
