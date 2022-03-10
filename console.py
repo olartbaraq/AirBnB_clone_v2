@@ -10,8 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-import shlex
-import re # Both fullmatch() and match() functions return a Match object if they find a match.
+
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -116,40 +115,49 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """ Allow for object creation with given arguments"""
-        args = shlex.split(arg)
-        # This will split the command line arguments to
-        # List when it sees a space character.
-        if len(args) == 0:
-            print("** classname is missing**")
-            return False
-        if args[0] not in classes:
-            print("** class doesn't exist**")
-            return False
-        kwargs = {}
-        for arg in args[1:]:
-            match = re.fullmatch('?P<key>[a-zA-Z_]\w*)=(?:'
-                                 '((?P<int>\d+)|'
-                                 '(?P<float>\d*\.\d*)|'
-                                 '(?P<string>.*))',
-                                 arg)
-            match = match.groupdict()
-            if match['string']:
-                kwargs[match['key']] = match['string'].replacse('_',' ')
-            elif match['float']:
-                if match['float'] == '_':
-                    continue
-                kwargs[match['key']] = float(match['float'])
-            else:
-                kwargs[match['key']] = int(match['int'])
-        instance = classes[args[0]](**kwargs)
+        if not args:
+            print("** class name missing **")
+        line = args.split(' ', 1)
+        class_name = line[0]
         try:
-            instance.save()
-        except Exception as e:
-            print("** could not save[{}] object **".format(args[0]))
-            print(e)
-            return False
-        else:
-            print(instance,id)
+            arguments = line[1]
+        except IndexError:
+            arguments = ''
+        kwargs = {}
+        while arguments:
+            arg = arguments.split(' ', 1)
+            split_arg = arg[0]
+            try:
+                arguments = arg[1]
+            except IndexError:
+                arguments = ''
+            key_value = split_arg.split('=', 1)
+            key = key_value[0]
+            value = key_value[1]
+            if value[0] == '"' and value[len(value) - 1] == '"':
+                value = value.replace('"', '')
+            else:
+                try:
+                    value = int(value)
+                except Exception:
+                    try:
+                        value = float(value)
+                    except Exception:
+                        value = ''
+            if value:
+                kwargs[key] = value
+        if class_name not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        new_instance = HBNBCommand.classes[class_name]()
+        for key, val in kwargs.items():
+            if isinstance(val, str):
+                kwargs[key] = kwargs[key].replace("_", " ")
+            new_instance.__dict__.update({key: kwargs[key]})
+        storage.new(new_instance)
+        storage.save()
+        print(new_instance.id)
+                                                                                         
 
     def help_create(self):
         """ Help information for the create method """
