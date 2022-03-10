@@ -75,19 +75,20 @@ class DBStorage():
 
         if obj:
             (self.__session).delete(obj)
-     def reload(self):
-         """create tables in the database"""
-         from models.base_model import Base
-         from models.state import State
-         from models.city import City
-         from models.place import Place
-         from models.user import User
-         from models.review import Review
-         from models.amenity import Amenity
 
-          if os.getenv('HBNB_ENV') == 'test':
-              Base.metadata.drop_all(self.__engine)
-          Base.metadata.create_all(self.__engine)
-          s_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-          Session = scoped_session(s_factory)
-          self.__session = Session()
+    def reload(self):
+        """create tables in the database"""
+        from models.base_model import Base
+        from models.state import State
+        from models.city import City
+        from models.place import Place
+        from models.user import User
+        from models.review import Review
+        from models.amenity import Amenity
+
+        if os.getenv('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(self.__engine)
+        Base.metadata.create_all(self.__engine)
+        s_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(s_factory)
+        self.__session = Session()
