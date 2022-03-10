@@ -35,11 +35,9 @@ class FileStorage:
     def delete(self, obj=None):
         """to delete obj from __objects if it’s inside"""
         if obj:
-            for keys, values in (FilesStorage.__objects).items():
-                if obj.id == values.id:
-                    (FileStorage.__objects).pop(keys)
-                    return
-
+            del self.__objects[obj.__class__.__name__ + '.' + obj.id]
+            self,save()
+            
     def reload(self):
         """Loads storage dictionary from file"""
         from models.base_model import BaseModel
