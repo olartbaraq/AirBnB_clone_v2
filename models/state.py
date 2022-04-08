@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
 
-from models.base_model import BaseModel, Base
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, create_engine
+from models.base_model import Base, BaseModel
+from sqlalchemy import Column, String
 from sqlalchemy import relationship, backref
 import os
 
@@ -27,11 +26,11 @@ class State(BaseModel, Base):
             state_id equals to the current State.id
             """
             from models import storage
-            from models import City
+            from models.city import City
 
-            all_objects = storage.all()
-            city_lists = []
-            for keys, values in all_objects.items():
-                if values.state_id == self.id:
-                    city_lists.append(values)
-            return city_lists
+            all_objects = storage.all(City)
+            city_list = []
+            for key, val in all_objects.items():
+                if val.state_id == self.id:
+                    city_list.append(val)
+            return city_list

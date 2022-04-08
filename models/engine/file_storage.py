@@ -12,10 +12,10 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if cls:
             cls_objects = {}
-            for keys, values in (FileStorage.__objects).items():
-                class_name = (keys.split('.', 1))[0]
+            for key, val in (FileStorage.__objects).items():
+                class_name = (key.split('.', 1))[0]
                 if cls.__name__ == class_name:
-                    cls_objects[keys] = values
+                    cls_objects[key] = val
             return cls_objects
         return FileStorage.__objects
 
@@ -35,9 +35,9 @@ class FileStorage:
     def delete(self, obj=None):
         """to delete obj from __objects if it’s inside"""
         if obj:
-            for keys, values in (FileStorage.__objects).items():
-                if obj.id == values.id:
-                    (FileStorage.__objects).pop(keys)
+            for key, val in (FileStorage.__objects).items():
+                if obj.id == val.id:
+                    (FileStorage.__objects).pop(key)
                     return
 
     def reload(self):
@@ -63,3 +63,8 @@ class FileStorage:
                     self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+        
+    def close(self):
+        """method for deserializing the JSON file to objects"""
+        self.reload()
+        
