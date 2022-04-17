@@ -115,49 +115,18 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """ Allow for object creation with given arguments"""
-        if not args:
+        args = arg.split()
+        if len(args) == 0:
             print("** class name missing **")
-        line = args.split(' ', 1)
-        class_name = line[0]
-        try:
-            arguments = line[1]
-        except IndexError:
-            arguments = ''
-        kwargs = {}
-        while arguments:
-            arg = arguments.split(' ', 1)
-            split_arg = arg[0]
-            try:
-                arguments = arg[1]
-            except IndexError:
-                arguments = ''
-            key_value = split_arg.split('=', 1)
-            key = key_value[0]
-            value = key_value[1]
-            if value[0] == '"' and value[len(value) - 1] == '"':
-                value = value.replace('"', '')
-            else:
-                try:
-                    value = int(value)
-                except Exception:
-                    try:
-                        value = float(value)
-                    except Exception:
-                        value = ''
-            if value:
-                kwargs[key] = value
-        if class_name not in HBNBCommand.classes:
+            return False
+        if args[0] in classes:
+            new_dict = self._key_value_parser(args[1:])
+            instance = classes[args[0]](**new_dict)
+        else:
             print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[class_name]()
-        for key, val in kwargs.items():
-            if isinstance(val, str):
-                kwargs[key] = kwargs[key].replace("_", " ")
-            new_instance.__dict__.update({key: kwargs[key]})
-        storage.new(new_instance)
-        storage.save()
-        print(new_instance.id)
-                                                                                         
+            return False
+        print(instance.id)
+        instance.save()
 
     def help_create(self):
         """ Help information for the create method """
